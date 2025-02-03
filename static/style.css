@@ -1,0 +1,117 @@
+/* Custom styles to complement Tailwind CSS */
+
+/* Button styles */
+.btn-primary {
+    @apply bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center text-sm sm:text-base;
+}
+
+.btn-secondary {
+    @apply bg-gray-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center text-sm sm:text-base;
+}
+
+/* Table styles */
+.table-container {
+    @apply w-full overflow-x-auto -mx-4 sm:mx-0;
+}
+
+table {
+    @apply min-w-full divide-y divide-gray-200;
+}
+
+th {
+    @apply px-3 py-2 sm:px-4 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-700 bg-gray-50;
+}
+
+td {
+    @apply px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm text-gray-900 whitespace-nowrap;
+}
+
+tr {
+    @apply border-b border-gray-200;
+}
+
+tr:hover {
+    @apply bg-gray-50;
+}
+
+/* Toast notification styles */
+.toast {
+    @apply fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white flex items-center justify-between min-w-[500px] transform transition-all duration-300 ease-in-out;
+    animation: slideIn 0.5s ease-in-out;
+    backdrop-filter: blur(10px);
+    background: rgba(29, 255, 195, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toast-success {
+    @apply bg-green-600/90;
+    display: flex;
+    padding: 1rem;
+}
+
+.toast-error {
+    @apply bg-red-600/90;
+}
+
+.toast-info {
+    @apply bg-blue-600/90;
+}
+
+.toast button {
+    @apply ml-4 text-white hover:text-gray-200;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Pagination styles */
+.pagination-button {
+    @apply px-2 sm:px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100 text-sm sm:text-base min-w-[32px] sm:min-w-[40px] flex items-center justify-center;
+}
+
+.pagination-active {
+    @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+    .container {
+        @apply px-4;
+    }
+    
+    .table-container {
+        @apply -mx-4;
+    }
+    
+    td, th {
+        @apply px-2 py-1;
+    }
+    
+    .truncate-mobile {
+        @apply max-w-[200px] truncate;
+    }
+}
+
+/* URL truncation */
+.url-cell {
+    @apply max-w-[150px] sm:max-w-[300px] truncate;
+}

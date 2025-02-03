@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}" type="image/x-icon" />
+    <title>Web Article Scraper</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-4 sm:py-8">
+        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+            <header class="text-center mb-6 sm:mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Web Article Scraper</h1>
+                <p class="text-sm sm:text-base text-gray-600">Extract and manage article information from any website</p>
+            </header>
+
+            <form id="scrapeForm" class="mb-6 sm:mb-8">
+                <div class="mb-4">
+                    <textarea 
+                        id="url" 
+                        name="url" 
+                        placeholder="Enter URL to scrape (e.g., https://example.com)" 
+                        required
+                        class="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows="2"
+                    ></textarea>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center">
+                    <button type="submit" class="btn-primary w-full sm:w-auto">
+                        <i class="fas fa-search mr-2"></i>Scrape
+                    </button>
+                    <button type="button" onclick="refreshData()" class="btn-secondary w-full sm:w-auto">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </form>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="hidden">
+                <div class="flex justify-center items-center mb-4">
+                    <div class="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-500"></div>
+                </div>
+                <p class="text-center text-sm sm:text-base text-gray-600">Scraping data, please wait...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden mb-4 p-3 sm:p-4 bg-red-100 text-red-700 rounded-lg text-sm sm:text-base"></div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="mb-6 sm:mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-800">Scraped Articles</h2>
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search articles..." 
+                            class="p-2 border border-gray-300 rounded-lg text-sm w-full sm:w-48"
+                        >
+                        <button id="clearSearch" class="btn-secondary w-full sm:w-auto">
+                            <i class="fas fa-times mr-2"></i>Clear
+                        </button>
+                        <select id="sortSelect" class="p-2 border border-gray-300 rounded-lg text-sm w-full sm:w-32">
+                            <option value="default">Sort by...</option>
+                            <option value="title">Title</option>
+                            <option value="date">Date</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto -mx-4 sm:mx-0">
+                    <div class="inline-block min-w-full align-middle">
+                        <table id="dataTable" class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-3 py-2 sm:px-4 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Title</th>
+                                    <th class="px-3 py-2 sm:px-4 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">URL</th>
+                                    <th class="px-3 py-2 sm:px-4 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-700">Date</th>
+                                    <th class="px-3 py-2 sm:px-4 sm:py-3 text-center text-xs sm:text-sm font-semibold text-gray-700">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                {% for item in data %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm text-gray-900 max-w-[150px] sm:max-w-none truncate">{{ item.title }}</td>
+                                    <td class="px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">
+                                        <a href="{{ item.url }}" target="_blank" class="text-blue-600 hover:text-blue-800 max-w-[150px] sm:max-w-none truncate block">
+                                            {{ item.url }}
+                                        </a>
+                                    </td>
+                                    <td class="px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm text-gray-900">{{ item.date }}</td>
+                                    <td class="px-3 py-2 sm:px-4 sm:py-3 text-center">
+                                        <button onclick="deleteItem({{ loop.index0 }})" class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div id="pagination" class="mt-4 flex justify-center gap-1 sm:gap-2 flex-wrap">
+                    <!-- Pagination buttons will be added by JavaScript -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center">
+                <button onclick="exportData('csv')" class="btn-secondary w-full sm:w-auto">
+                    <i class="fas fa-file-csv mr-2"></i>Export as CSV
+                </button>
+                <button onclick="exportData('json')" class="btn-secondary w-full sm:w-auto">
+                    <i class="fas fa-file-code mr-2"></i>Export as JSON
+                </button>
+            </div>
+        </div>
+
+        <footer class="mt-6 sm:mt-8 text-center text-gray-600">
+            <div class="mb-2">
+                <p class="text-sm sm:text-base">&copy; <span id="currentYear"></span> Augustine Saah Tamba. All rights reserved.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4 text-sm sm:text-base">
+                <a href="https://augustine.techllective.com/" class="hover:text-blue-600">Portfolio</a>
+                <a href="#" class="hover:text-blue-600">Terms of Service</a>
+                <a href="mailto:satamba15@gmail.com" class="hover:text-blue-600">Contact Us</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 max-w-[90%] sm:max-w-md"></div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
